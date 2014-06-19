@@ -10,12 +10,19 @@ import SpriteKit
 
 class GameScene: SKScene {
     
-//    var statusBarHidden = true;
-    
     override func didMoveToView(view: SKView) {
         /* Setup your scene here */
         
         self.backgroundColor = UIColor.whiteColor();
+        
+        let bg = SKSpriteNode(imageNamed:"background");
+        bg.position = CGPoint(x: view.bounds.size.width/2,y: view.bounds.size.height/2);
+        bg.anchorPoint = CGPoint(x: 0.5,y: 0.5);
+//        bg.anchorPoint = CGPointZero;
+        self.addChild(bg);
+        
+        println("View bounds \(view.bounds)");
+        println("Scene size \(self.size)")
         
 //        let myLabel = SKLabelNode(fontNamed:"Chalkduster")
 //        myLabel.text = "Hello, World!";
