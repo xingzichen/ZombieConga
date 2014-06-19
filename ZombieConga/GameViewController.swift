@@ -26,8 +26,8 @@ extension SKNode {
 
 class GameViewController: UIViewController {
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
 
         if let scene = GameScene.unarchiveFromFile("GameScene") as? GameScene {
             // Configure the view.
@@ -44,6 +44,8 @@ class GameViewController: UIViewController {
             skView.presentScene(scene)
         }
     }
+    
+    
 
     override func shouldAutorotate() -> Bool {
         return true
@@ -60,6 +62,10 @@ class GameViewController: UIViewController {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Release any cached data, images, etc that aren't in use.
+    }
+    
+    override func prefersStatusBarHidden()->Bool{
+        return true;
     }
     
 }
