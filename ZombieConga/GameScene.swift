@@ -69,6 +69,10 @@ class GameScene: SKScene {
         }
     }
     
+    override func didEvaluateActions() {
+        self.checkCollisions();
+    }
+    
     // MARK: - sprite nodes
     
     func spawnEnemy(){
@@ -112,6 +116,27 @@ class GameScene: SKScene {
         var removeFromParent = SKAction.removeFromParent();
         
         cat.runAction(SKAction.sequence([actionAppear, actionGroupWait, actionWait, actionDisappear, removeFromParent]));
+    }
+    
+    // MARK: - Nodes Relations
+    
+    func checkCollisions(){
+        self.enumerateChildNodesWithName("cat", usingBlock:{ node, stop in
+            var cat = node as SKSpriteNode;
+            if(CGRectIntersectsRect(cat.frame,self._zombie.frame)){
+                cat.removeFromParent();
+                self.runAction(SKAction.playSoundFileNamed("hitCat.wav", waitForCompletion: false));
+            }
+            });
+        
+        self.enumerateChildNodesWithName("enemy", usingBlock:{ node, stop in
+            var enemy = node as SKSpriteNode;
+            var smallerFrame = CGRectInset(enemy.frame, 20, 20);
+            if(CGRectIntersectsRect(smallerFrame, self._zombie.frame)){
+                enemy.removeFromParent();
+                self.runAction(SKAction.playSoundFileNamed("hitCatLady.wav", waitForCompletion: false));
+            }
+            });
     }
     
     // MARK: - Zombie Animations
