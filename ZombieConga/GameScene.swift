@@ -19,6 +19,7 @@ class GameScene: SKScene {
     var _velocity:CGPoint = CGPointZero;
     var _zombie:SKSpriteNode = SKSpriteNode(imageNamed:"zombie1");
     var _zombieTowardLocation = CGPointZero;
+    var _zombieAnimation = SKAction();
     
     override func didMoveToView(view: SKView) {
         /* Setup your scene here */
@@ -41,6 +42,8 @@ class GameScene: SKScene {
         self.runAction(SKAction.repeatActionForever(
             SKAction.sequence([SKAction.runBlock(spawnCats),SKAction.waitForDuration(1.0)])));
         
+        self.initZombieAnimation();
+        
         println("View bounds \(view.bounds)");
         println("Scene size \(self.size)");
 
@@ -62,6 +65,7 @@ class GameScene: SKScene {
         }
         else {
             _zombie.position = _zombieTowardLocation;
+            self.stopZombieAnimation();
         }
     }
     
@@ -110,6 +114,32 @@ class GameScene: SKScene {
         cat.runAction(SKAction.sequence([actionAppear, actionGroupWait, actionWait, actionDisappear, removeFromParent]));
     }
     
+    // MARK: - Zombie Animations
+    
+    func initZombieAnimation(){
+        var textures:AnyObject[] = [];
+        for var i=1;i<=4;++i {
+            var textureName = String(format: "zombie%d", i);
+            var texture = SKTexture(imageNamed: textureName);
+            textures.append(texture);
+        }
+        for var i=3;i>0;--i {
+            var textureName = String(format: "zombie%d", i);
+            var texture = SKTexture(imageNamed: textureName);
+            textures.append(texture);
+        }
+        _zombieAnimation = SKAction.animateWithTextures(textures, timePerFrame: 0.1);
+    }
+    
+    func startZombieAnimation(){
+        if !_zombie.actionForKey("animation") {
+            _zombie.runAction(SKAction.repeatActionForever(_zombieAnimation), withKey:"animation");
+        }
+    }
+    
+    func stopZombieAnimation(){
+        _zombie.removeActionForKey("animation");
+    }
     
     // MARK: - move
     
@@ -119,6 +149,7 @@ class GameScene: SKScene {
     }
     
     func moveZombieToward(location:CGPoint){
+        self.startZombieAnimation();
         _zombieTowardLocation = location;
         var offset = CGPointSubtract(location, b: _zombie.position);
         var direction = CGPointNormalize(const: offset);
