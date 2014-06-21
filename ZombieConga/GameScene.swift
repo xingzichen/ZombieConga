@@ -8,7 +8,14 @@
 
 import SpriteKit
 
+
 class GameScene: SKScene {
+    
+    let ZOMBIE_MOVE_POINTS_PER_SEC:CFloat = 120.0
+    
+    var _lastUpdateTime:NSTimeInterval = 0.0;
+    var _dt:NSTimeInterval = 0.0;
+    var _velocity:CGPoint = CGPointZero;
     
     override func didMoveToView(view: SKView) {
         /* Setup your scene here */
@@ -23,13 +30,7 @@ class GameScene: SKScene {
         
         println("View bounds \(view.bounds)");
         println("Scene size \(self.size)")
-        
-//        let myLabel = SKLabelNode(fontNamed:"Chalkduster")
-//        myLabel.text = "Hello, World!";
-//        myLabel.fontSize = 65;
-//        myLabel.position = CGPoint(x:CGRectGetMidX(self.frame), y:CGRectGetMidY(self.frame));
-//        
-//        self.addChild(myLabel)
+
     }
     
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
@@ -54,7 +55,67 @@ class GameScene: SKScene {
    
     override func update(currentTime: CFTimeInterval) {
         /* Called before each frame is rendered */
+        if _lastUpdateTime != nil {
+            _dt = currentTime - _lastUpdateTime;
+        }else{
+            _dt = 0;
+        }
+        
+        _lastUpdateTime = currentTime;
+        println("\(_dt)");
     }
     
+    func moveSprite(sprite:SKSpriteNode, velocity:CGPoint){
+        var amountToMove:CGPoint = CGPointMultiplyScalar(velocity, b: _dt);
+    }
     
+    // MARK: - helper methods
+    
+    func CGPointMultiplyScalar(a:CGPoint,b:CGFloat)->CGPoint{
+        return CGPointMake(a.x*b, a.y*b);
+    }
+    
+    func CGPointAdd(a:CGPoint, b:CGPoint)->CGPoint{
+        return CGPointMake(a.x+b.x, a.y+b.y);
+    }
+    
+    func CGPointSubtract(a:CGPoint,b:CGPoint)->CGPoint{
+        return CGPointMake(a.x-b.x,a.y-b.y);
+    }
+    
+    func CGPointLength(const a:CGPoint)->CGFloat{
+        return CGFloat(sqrtf(CFloat(a.x*a.x) + CFloat(a.y*a.y)));
+    }
+    
+    func CGPointNormalize(const a:CGPoint)->CGPoint{
+        var length = CGPointLength(const: a);
+        return CGPointMake(a.x/length, a.y/length);
+    }
+    
+    func CGPointToAngle(const a:CGPoint)->CGFloat{
+        return CGFloat(atan2f(CFloat(a.y), CFloat(a.x)));
+    }
+    
+    func ScalarSign(const a:CGFloat) -> CGFloat{
+        return a >= 0 ? 1 : -1;
+    }
+    
+    func ScalarShortestAngleBetween(const a:CGFloat, const b:CGFloat)->CGFloat{
+        var difference = b - a;
+        var angle = CGFloat(fmodf(CFloat(difference), CFloat(M_PI*2)));
+        if angle >= M_PI {
+            angle -= M_PI*2;
+        }
+        else if angle <= -M_PI {
+            angle += M_PI*2;
+        }
+        return angle;
+    }
+    
+    let ARC4RANDOM_MAX = 0x100000000;
+    func ScalarRandomRange(min:CGFloat, max:CGFloat)->CGFloat{
+        return CGFloat(floorf( ( CFloat(arc4random()) / CFloat(ARC4RANDOM_MAX)) * CFloat(max - min) + CFloat(min) ));
+    }
+
+
 }
