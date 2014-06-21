@@ -20,6 +20,7 @@ class GameScene: SKScene {
     var _zombie:SKSpriteNode = SKSpriteNode(imageNamed:"zombie1");
     var _zombieTowardLocation = CGPointZero;
     var _zombieAnimation = SKAction();
+    var _catTrain:SKSpriteNode[] = [];
     
     override func didMoveToView(view: SKView) {
         /* Setup your scene here */
@@ -124,7 +125,8 @@ class GameScene: SKScene {
         self.enumerateChildNodesWithName("cat", usingBlock:{ node, stop in
             var cat = node as SKSpriteNode;
             if(CGRectIntersectsRect(cat.frame,self._zombie.frame)){
-                cat.removeFromParent();
+//                cat.removeFromParent();
+                self.addCatIntoTrain(cat);
                 self.runAction(SKAction.playSoundFileNamed("hitCat.wav", waitForCompletion: false));
             }
             });
@@ -137,6 +139,15 @@ class GameScene: SKScene {
                 self.runAction(SKAction.playSoundFileNamed("hitCatLady.wav", waitForCompletion: false));
             }
             });
+    }
+    
+    func addCatIntoTrain(cat:SKSpriteNode){
+        cat.name = "train";
+        cat.removeAllActions();
+        var actionScale = SKAction.scaleTo(1, duration:0.2);
+        var actionGreen = SKAction.colorizeWithColor(UIColor.greenColor(), colorBlendFactor:1.0, duration:0.2);
+        cat.runAction(SKAction.sequence([actionScale, actionGreen]));
+        _catTrain.append(cat);
     }
     
     // MARK: - Zombie Animations
@@ -202,6 +213,17 @@ class GameScene: SKScene {
                 sprite.zRotation += amtToRotate;
             }
         }
+    }
+    
+    func moveTrain(){
+        // make sure the train is not empty
+        if _catTrain.isEmpty {
+            return;
+        }
+        // first cat follow the zombie
+        
+        // other cats follow the front one
+        
     }
     
     
