@@ -35,8 +35,11 @@ class GameScene: SKScene {
         
         _zombieTowardLocation = _zombie.position;
         
+        self.runAction(SKAction.repeatActionForever(
+            SKAction.sequence([SKAction.runBlock(spawnEnemy),SKAction.waitForDuration(2.0)])));
+        
         println("View bounds \(view.bounds)");
-        println("Scene size \(self.size)")
+        println("Scene size \(self.size)");
 
     }
    
@@ -57,11 +60,19 @@ class GameScene: SKScene {
         else {
             _zombie.position = _zombieTowardLocation;
         }
-        
-//        println("\(_dt)");
     }
     
-    
+    func spawnEnemy(){
+        var enemy = SKSpriteNode(imageNamed:"enemy");
+        enemy.position = CGPointMake(self.size.width + enemy.size.width/2,
+            ScalarRandomRange(enemy.size.height/2, max: self.size.height-enemy.size.height/2));
+        enemy.name = "enemy";
+        self.addChild(enemy);
+        
+        var actionMove = SKAction.moveToX(enemy.size.width/2, duration: 2.0);
+        var actionRemove = SKAction.removeFromParent();
+        enemy.runAction(SKAction.sequence([actionMove, actionRemove]));
+    }
     
     
     // MARK: - move
@@ -85,7 +96,6 @@ class GameScene: SKScene {
     
     func rotateSprite(sprite:SKSpriteNode, direction:CGPoint, rotateRadiansPerSec:CGFloat){
         var rotation = ScalarShortestAngleBetween(const: CGPointToAngle(const: direction), const: sprite.zRotation);
-        println("rotation : \(rotation)")
         var amtToRotate = rotateRadiansPerSec*_dt;
         if (rotation>0) {
             if(rotation - amtToRotate < 0){
