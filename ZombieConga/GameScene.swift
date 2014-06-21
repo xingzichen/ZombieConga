@@ -38,6 +38,9 @@ class GameScene: SKScene {
         self.runAction(SKAction.repeatActionForever(
             SKAction.sequence([SKAction.runBlock(spawnEnemy),SKAction.waitForDuration(2.0)])));
         
+        self.runAction(SKAction.repeatActionForever(
+            SKAction.sequence([SKAction.runBlock(spawnCats),SKAction.waitForDuration(1.0)])));
+        
         println("View bounds \(view.bounds)");
         println("Scene size \(self.size)");
 
@@ -62,6 +65,8 @@ class GameScene: SKScene {
         }
     }
     
+    // MARK: - sprite nodes
+    
     func spawnEnemy(){
         var enemy = SKSpriteNode(imageNamed:"enemy");
         enemy.position = CGPointMake(self.size.width + enemy.size.width/2,
@@ -72,6 +77,37 @@ class GameScene: SKScene {
         var actionMove = SKAction.moveToX(enemy.size.width/2, duration: 2.0);
         var actionRemove = SKAction.removeFromParent();
         enemy.runAction(SKAction.sequence([actionMove, actionRemove]));
+    }
+    
+    func spawnCats(){
+        var cat = SKSpriteNode(imageNamed:"cat");
+        cat.position = CGPointMake(ScalarRandomRange(0, max:self.view.bounds.width),
+            ScalarRandomRange(0, max:self.view.bounds.height));
+        
+        cat.xScale = 0;
+        cat.yScale = 0;
+        cat.name = "cat";
+        self.addChild(cat);
+        
+        cat.zRotation = -M_PI/16;
+        var actionAppear = SKAction.scaleTo(1.0, duration:0.5);
+        var actionWait = SKAction.waitForDuration(10);
+        
+        var actionLeftWiggle = SKAction.rotateByAngle(M_PI/8, duration: 0.5);
+        var actionRightWiggle = actionLeftWiggle.reversedAction();
+        var actionFullWiggle = SKAction.sequence([actionLeftWiggle, actionRightWiggle]);
+        
+        var actionScaleUp = SKAction.scaleTo(1.2, duration:0.25);
+        var actionScaleDown = actionScaleUp.reversedAction();
+        var actionFullScale = SKAction.sequence([actionScaleUp, actionScaleDown]);
+        
+        var actionGroup = SKAction.sequence([actionFullScale, actionFullWiggle]);
+        var actionGroupWait = SKAction.repeatAction(actionGroup, count: 10);
+        
+        var actionDisappear = SKAction.scaleTo(0, duration: 0.5);
+        var removeFromParent = SKAction.removeFromParent();
+        
+        cat.runAction(SKAction.sequence([actionAppear, actionGroupWait, actionWait, actionDisappear, removeFromParent]));
     }
     
     
