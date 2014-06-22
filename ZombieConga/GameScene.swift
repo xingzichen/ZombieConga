@@ -14,6 +14,10 @@ class GameScene: SKScene {
     let ZOMBIE_MOVE_POINTS_PER_SEC:CGFloat = 120.0;
     let ZOMBIE_ROTATE_RADIANS_PER_SEC = 2*M_PI;
     
+    let CAT_MOVE_POINTS_PER_SEC:CGFloat = 80.0;
+    let CAT_ROTATE_RADIANS_PER_SEC = 2*M_PI;
+
+    
     var _lastUpdateTime:NSTimeInterval = 0.0;
     var _dt:NSTimeInterval = 0.0;
     var _velocity:CGPoint = CGPointZero;
@@ -68,10 +72,13 @@ class GameScene: SKScene {
             _zombie.position = _zombieTowardLocation;
             self.stopZombieAnimation();
         }
+        
+//        moveSpriteToLocation(_zombie, location:_zombieTowardLocation, self.stopZombieAnimation);
     }
     
     override func didEvaluateActions() {
         self.checkCollisions();
+        self.moveTrain();
     }
     
     // MARK: - sprite nodes
@@ -184,6 +191,20 @@ class GameScene: SKScene {
         sprite.position = CGPointAdd(sprite.position, b:amountToMove);
     }
     
+    func moveSpriteToLocation(sprite:SKSpriteNode, location:CGPoint ){
+        var offset = CGPointSubtract(location, b: sprite.position);
+        var direction = CGPointNormalize(const: offset);
+        var velocity = CGPointMultiplyScalar(direction, b: CAT_MOVE_POINTS_PER_SEC);
+        
+        if( CGPointLength(const: CGPointSubtract(sprite.position, b: location)) >= CGPointLength(const:CGPointMultiplyScalar(velocity, b: _dt))){
+            self.moveSprite(sprite, velocity:velocity);
+            self.rotateSprite(sprite, direction:velocity, rotateRadiansPerSec: CAT_ROTATE_RADIANS_PER_SEC);
+        }
+        else {
+//            sprite.position = location;
+        }
+    }
+    
     func moveZombieToward(location:CGPoint){
         self.startZombieAnimation();
         _zombieTowardLocation = location;
@@ -221,9 +242,20 @@ class GameScene: SKScene {
             return;
         }
         // first cat follow the zombie
-        
+        _catTrain[0].runAction(self.actionFollow(_zombie, follower: _catTrain[0]));
         // other cats follow the front one
+        for (var i=1; i<_catTrain.count; ++i){
+            _catTrain[i].runAction(self.actionFollow(_catTrain[i-1], follower: _catTrain[i]));
+        }
         
+    }
+    
+    func actionFollow(leader:SKSpriteNode, follower:SKSpriteNode)->SKAction{
+        var actionWait = SKAction.waitForDuration(0.5);
+        var actionFollow = SKAction.runBlock({
+                self.moveSpriteToLocation(follower, location: leader.position);
+            });
+        return SKAction.sequence([actionWait, actionFollow]);
     }
     
     
