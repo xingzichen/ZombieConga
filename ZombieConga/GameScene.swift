@@ -64,7 +64,7 @@ class GameScene: SKScene {
         
         _lastUpdateTime = currentTime;
         
-        if( CGPointLength(const: CGPointSubtract(_zombie.position, b: _zombieTowardLocation)) >= CGPointLength(const:CGPointMultiplyScalar(_velocity, b: _dt))){
+        if( CGPointLength(const: CGPointSubtract(_zombie.position, b: _zombieTowardLocation)) > CGPointLength(const:CGPointMultiplyScalar(_velocity, b: _dt))){
             self.moveSprite(_zombie, velocity:_velocity);
             self.rotateSprite(_zombie, direction:_velocity, rotateRadiansPerSec: ZOMBIE_ROTATE_RADIANS_PER_SEC);
         }
@@ -303,6 +303,9 @@ class GameScene: SKScene {
     
     func CGPointNormalize(const a:CGPoint)->CGPoint{
         var length = CGPointLength(const: a);
+        if length==0 {
+            length = 1;
+        }
         return CGPointMake(a.x/length, a.y/length);
     }
     
