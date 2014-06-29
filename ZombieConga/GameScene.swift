@@ -26,6 +26,9 @@ class GameScene: SKScene {
     var _zombieAnimation = SKAction();
     var _catTrain:SKSpriteNode[] = [];
     
+    var _lives = 5;
+    var _gameOver = false;
+    
     override func didMoveToView(view: SKView) {
         /* Setup your scene here */
         
@@ -74,6 +77,14 @@ class GameScene: SKScene {
         }
         
 //        moveSpriteToLocation(_zombie, location:_zombieTowardLocation, self.stopZombieAnimation);
+        
+        if( _lives<=0 && !_gameOver){
+            _gameOver = true;
+            println("Yeah !!! Game Over!!!");
+        }
+        if( _lives>0 && _gameOver){
+            println("Ooh!!! You Win!!!");
+        }
     }
     
     override func didEvaluateActions() {
@@ -144,6 +155,8 @@ class GameScene: SKScene {
             if(CGRectIntersectsRect(smallerFrame, self._zombie.frame)){
                 enemy.removeFromParent();
                 self.runAction(SKAction.playSoundFileNamed("hitCatLady.wav", waitForCompletion: false));
+                self.loseCats();
+                self._lives--;
             }
             });
     }
@@ -155,6 +168,36 @@ class GameScene: SKScene {
         var actionGreen = SKAction.colorizeWithColor(UIColor.greenColor(), colorBlendFactor:1.0, duration:0.2);
         cat.runAction(SKAction.sequence([actionScale, actionGreen]));
         _catTrain.append(cat);
+        
+        if( _catTrain.count >= 30){
+            _gameOver = true;
+        }
+    }
+    
+    func loseCats(){
+        var loseCount = 0;
+        
+        self.enumerateChildNodesWithName("train", usingBlock:{
+            (node: SKNode!, stop: CMutablePointer<ObjCBool>) -> Void in
+            var randomSpot = node.position;
+            randomSpot.x += self.ScalarRandomRange(-100, max: 100);
+            randomSpot.y += self.ScalarRandomRange(-100, max: 100);
+            node.name = "";
+            
+            var actionRotate = SKAction.rotateByAngle(M_PI * 4, duration:1.0);
+            var actionMoveRandom = SKAction.moveTo(randomSpot, duration: 1.0);
+            var actionDisappear = SKAction.scaleTo(0, duration: 1.0);
+            var action = SKAction.sequence([SKAction.group([actionRotate,actionMoveRandom,actionDisappear]),SKAction.removeFromParent()]);
+            
+            node.runAction(action);
+            loseCount++;
+            if(loseCount>=2){
+                stop.withUnsafePointer() { (p :UnsafePointer<ObjCBool>) in
+                    p.memory = true /* or whatever */
+                }
+            }
+            
+            });
     }
     
     // MARK: - Zombie Animations
