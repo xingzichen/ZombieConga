@@ -15,14 +15,13 @@ class GameOverScene : SKScene {
     init(size: CGSize, won: Bool){
         super.init(size: size)
         _won = won;
-
     }
     
     override func didMoveToView(view: SKView) {
         var bg:SKSpriteNode;
         if(_won){
             bg = SKSpriteNode(imageNamed:"YouWin.png");
-            self.runAction(SKAction.sequence([SKAction.waitForDuration(1),
+            self.runAction(SKAction.sequence([SKAction.waitForDuration(0.1),
                 SKAction.playSoundFileNamed("win.wav", waitForCompletion: false)]));
         }else{
             bg = SKSpriteNode(imageNamed:"YouLose.png");

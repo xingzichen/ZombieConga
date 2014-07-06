@@ -9,13 +9,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ZombieConga/GameOverScene.swift"
-            timestampString = "426346689.21139"
+            filePath = "ZombieConga/GameScene.swift"
+            timestampString = "426353139.204391"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "24"
-            endingLineNumber = "24"
-            landmarkName = "didMoveToView(_:)"
+            startingLineNumber = "93"
+            endingLineNumber = "93"
+            landmarkName = "update(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

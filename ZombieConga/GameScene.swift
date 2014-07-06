@@ -29,7 +29,7 @@ class GameScene: SKScene {
     
     var _backgroundMusicPlayer = AVAudioPlayer();
     
-    var _lives = 20;
+    var _lives = 2;
     var _gameOver = false;
     
     override func didMoveToView(view: SKView) {
@@ -56,6 +56,7 @@ class GameScene: SKScene {
         
         self.initZombieAnimation();
         
+        
 
     }
    
@@ -79,7 +80,23 @@ class GameScene: SKScene {
         }
         
 //        moveSpriteToLocation(_zombie, location:_zombieTowardLocation, self.stopZombieAnimation);
+        if( _lives<=0 && !_gameOver){
+            _gameOver = true;
+            println("Yeah !!! Game Over!!!");
+            
+            var gameOverScene = GameOverScene(size: self.scene.size, won: false);
+            var reveal = SKTransition.flipHorizontalWithDuration(0.5);
+            self.view.presentScene(gameOverScene, transition: reveal);
+        }
         
+        if( _lives>0 && _gameOver){
+            println("Ooh!!! You Win!!!");
+            self.removeAllChildren();
+            var gameOverScene = GameOverScene(size: self.scene.size, won: true);
+            var reveal = SKTransition.flipHorizontalWithDuration(0.5);
+            self.view.presentScene(gameOverScene, transition: reveal);
+        }
+
         
     }
     
@@ -87,18 +104,7 @@ class GameScene: SKScene {
         self.checkCollisions();
         self.moveTrain();
         
-        if( _lives<=0 && !_gameOver){
-            _gameOver = true;
-            println("Yeah !!! Game Over!!!");
-        }
-        if( _lives>0 && _gameOver){
-            println("Ooh!!! You Win!!!");
-            
-            var gameOverScene = GameOverScene(size: self.scene.size, won: true);
-            var reveal = SKTransition.flipHorizontalWithDuration(0.5);
-            gameOverScene.scaleMode = SKSceneScaleMode.AspectFill;
-            self.scene.view.presentScene(gameOverScene, transition: reveal);
-        }
+        
     }
     
     // MARK: - sprite nodes
