@@ -7,6 +7,7 @@
 //
 
 import SpriteKit
+import AVFoundation
 
 
 class GameScene: SKScene {
@@ -26,13 +27,16 @@ class GameScene: SKScene {
     var _zombieAnimation = SKAction();
     var _catTrain:SKSpriteNode[] = [];
     
-    var _lives = 5;
+    var _backgroundMusicPlayer = AVAudioPlayer();
+    
+    var _lives = 20;
     var _gameOver = false;
     
     override func didMoveToView(view: SKView) {
         /* Setup your scene here */
         
         self.backgroundColor = UIColor.whiteColor();
+        self.playBackgroundMusic("bgMusic.mp3");
         
         let bg = SKSpriteNode(imageNamed:"background");
         bg.position = CGPoint(x: view.bounds.size.width/2,y: view.bounds.size.height/2);
@@ -52,8 +56,6 @@ class GameScene: SKScene {
         
         self.initZombieAnimation();
         
-        println("View bounds \(view.bounds)");
-        println("Scene size \(self.size)");
 
     }
    
@@ -78,18 +80,25 @@ class GameScene: SKScene {
         
 //        moveSpriteToLocation(_zombie, location:_zombieTowardLocation, self.stopZombieAnimation);
         
+        
+    }
+    
+    override func didEvaluateActions() {
+        self.checkCollisions();
+        self.moveTrain();
+        
         if( _lives<=0 && !_gameOver){
             _gameOver = true;
             println("Yeah !!! Game Over!!!");
         }
         if( _lives>0 && _gameOver){
             println("Ooh!!! You Win!!!");
+            
+            var gameOverScene = GameOverScene(size: self.scene.size, won: true);
+            var reveal = SKTransition.flipHorizontalWithDuration(0.5);
+            gameOverScene.scaleMode = SKSceneScaleMode.AspectFill;
+            self.scene.view.presentScene(gameOverScene, transition: reveal);
         }
-    }
-    
-    override func didEvaluateActions() {
-        self.checkCollisions();
-        self.moveTrain();
     }
     
     // MARK: - sprite nodes
@@ -169,7 +178,7 @@ class GameScene: SKScene {
         cat.runAction(SKAction.sequence([actionScale, actionGreen]));
         _catTrain.append(cat);
         
-        if( _catTrain.count >= 30){
+        if( _catTrain.count >= 10){
             _gameOver = true;
         }
     }
@@ -177,27 +186,48 @@ class GameScene: SKScene {
     func loseCats(){
         var loseCount = 0;
         
-        self.enumerateChildNodesWithName("train", usingBlock:{
-            (node: SKNode!, stop: CMutablePointer<ObjCBool>) -> Void in
-            var randomSpot = node.position;
-            randomSpot.x += self.ScalarRandomRange(-100, max: 100);
-            randomSpot.y += self.ScalarRandomRange(-100, max: 100);
-            node.name = "";
-            
-            var actionRotate = SKAction.rotateByAngle(M_PI * 4, duration:1.0);
-            var actionMoveRandom = SKAction.moveTo(randomSpot, duration: 1.0);
-            var actionDisappear = SKAction.scaleTo(0, duration: 1.0);
-            var action = SKAction.sequence([SKAction.group([actionRotate,actionMoveRandom,actionDisappear]),SKAction.removeFromParent()]);
-            
-            node.runAction(action);
-            loseCount++;
-            if(loseCount>=2){
-                stop.withUnsafePointer() { (p :UnsafePointer<ObjCBool>) in
-                    p.memory = true /* or whatever */
-                }
-            }
-            
-            });
+        if(_catTrain.count == 0){
+            return;
+        }
+        
+        var node = _catTrain[_catTrain.count-1];
+        
+        var randomSpot = node.position;
+        randomSpot.x += self.ScalarRandomRange(-100, max: 100);
+        randomSpot.y += self.ScalarRandomRange(-100, max: 100);
+        node.name = "";
+        
+        var actionRotate = SKAction.rotateByAngle(M_PI * 4, duration:1.0);
+        var actionMoveRandom = SKAction.moveTo(randomSpot, duration: 1.0);
+        var actionDisappear = SKAction.scaleTo(0, duration: 1.0);
+        var action = SKAction.sequence([SKAction.group([actionRotate,actionMoveRandom,actionDisappear]),SKAction.removeFromParent()]);
+                    
+        node.runAction(action);
+        
+        _catTrain.removeAtIndex(_catTrain.count-1);
+        
+//        self.enumerateChildNodesWithName("train", usingBlock:{
+//            (node: SKNode!, stop: CMutablePointer<ObjCBool>) -> Void in
+//            var randomSpot = node.position;
+//            randomSpot.x += self.ScalarRandomRange(-100, max: 100);
+//            randomSpot.y += self.ScalarRandomRange(-100, max: 100);
+//            node.name = "";
+//            
+//            var actionRotate = SKAction.rotateByAngle(M_PI * 4, duration:1.0);
+//            var actionMoveRandom = SKAction.moveTo(randomSpot, duration: 1.0);
+//            var actionDisappear = SKAction.scaleTo(0, duration: 1.0);
+//            var action = SKAction.sequence([SKAction.group([actionRotate,actionMoveRandom,actionDisappear]),SKAction.removeFromParent()]);
+//            
+//            node.runAction(action);
+//            loseCount++;
+//            if(loseCount>=2){
+//                stop.withUnsafePointer() { (p :UnsafePointer<ObjCBool>) in
+//                    p.memory = true /* or whatever */
+//                }
+//            }
+//
+//            });
+    
     }
     
     // MARK: - Zombie Animations
@@ -375,6 +405,15 @@ class GameScene: SKScene {
     let ARC4RANDOM_MAX = 0x100000000;
     func ScalarRandomRange(min:CGFloat, max:CGFloat)->CGFloat{
         return CGFloat(floorf( ( CFloat(arc4random()) / CFloat(ARC4RANDOM_MAX)) * CFloat(max - min) + CFloat(min) ));
+    }
+    
+    func playBackgroundMusic(filename : String){
+        var error:AutoreleasingUnsafePointer<NSError?> = nil;// = AutoreleasingUnsafePointer<NSError?>();
+        var backgroundMusicURL = NSBundle.mainBundle().URLForResource(filename, withExtension:nil);
+        _backgroundMusicPlayer = AVAudioPlayer(contentsOfURL:backgroundMusicURL, error:error);
+        _backgroundMusicPlayer.numberOfLoops = -1;
+        _backgroundMusicPlayer.prepareToPlay();
+        _backgroundMusicPlayer.play();
     }
 
 
