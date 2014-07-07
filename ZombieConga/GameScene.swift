@@ -17,6 +17,8 @@ class GameScene: SKScene {
     
     let CAT_MOVE_POINTS_PER_SEC:CGFloat = 120.0;
     let CAT_ROTATE_RADIANS_PER_SEC = 2*M_PI;
+    
+    let BG_POINTS_PER_SEC:CGFloat = 50;
 
     
     var _lastUpdateTime:NSTimeInterval = 0.0;
@@ -39,8 +41,12 @@ class GameScene: SKScene {
         self.playBackgroundMusic("bgMusic.mp3");
         
         let bg = SKSpriteNode(imageNamed:"background");
-        bg.position = CGPoint(x: view.bounds.size.width/2,y: view.bounds.size.height/2);
-        bg.anchorPoint = CGPoint(x: 0.5,y: 0.5);
+//        bg.position = CGPoint(x: view.bounds.size.width/2,y: view.bounds.size.height/2);
+//        bg.anchorPoint = CGPoint(x: 0.5,y: 0.5);
+//        self.addChild(bg);
+        bg.anchorPoint = CGPointZero;
+        bg.position = CGPointZero;
+        bg.name = "bg";
         self.addChild(bg);
         
         _zombie.position = CGPointMake(100,100);
@@ -62,12 +68,12 @@ class GameScene: SKScene {
    
     override func update(currentTime: CFTimeInterval) {
         /* Called before each frame is rendered */
-        if _lastUpdateTime != nil {
+        if _lastUpdateTime != 0 {
             _dt = currentTime - _lastUpdateTime;
         }else{
             _dt = 0;
         }
-        
+        println(_dt);
         _lastUpdateTime = currentTime;
         
         if( CGPointLength(const: CGPointSubtract(_zombie.position, b: _zombieTowardLocation)) > CGPointLength(const:CGPointMultiplyScalar(_velocity, b: _dt))){
@@ -95,7 +101,7 @@ class GameScene: SKScene {
     override func didEvaluateActions() {
         self.checkCollisions();
         self.moveTrain();
-        
+        self.moveBg();
         
     }
     
@@ -332,6 +338,15 @@ class GameScene: SKScene {
                 self.moveSpriteToLocation(follower, location: leader.position);
             });
         return SKAction.sequence([actionWait, actionFollow]);
+    }
+    
+    func moveBg(){
+        self.enumerateChildNodesWithName("bg", usingBlock:{ node, stop in
+            var bg:SKSpriteNode = node as SKSpriteNode;
+            var bgVelocity = CGPointMake(-self.BG_POINTS_PER_SEC, 0);
+            var amtToMove = self.CGPointMultiplyScalar(bgVelocity, b: self._dt);
+            bg.position = self.CGPointAdd(bg.position, b: amtToMove);
+        });
     }
     
     
