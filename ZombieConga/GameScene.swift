@@ -15,7 +15,7 @@ class GameScene: SKScene {
     let ZOMBIE_MOVE_POINTS_PER_SEC:CGFloat = 120.0;
     let ZOMBIE_ROTATE_RADIANS_PER_SEC = 2*M_PI;
     
-    let CAT_MOVE_POINTS_PER_SEC:CGFloat = 80.0;
+    let CAT_MOVE_POINTS_PER_SEC:CGFloat = 120.0;
     let CAT_ROTATE_RADIANS_PER_SEC = 2*M_PI;
 
     
@@ -87,17 +87,8 @@ class GameScene: SKScene {
             var gameOverScene = GameOverScene(size: self.scene.size, won: false);
             var reveal = SKTransition.flipHorizontalWithDuration(0.5);
             self.view.presentScene(gameOverScene, transition: reveal);
+            _backgroundMusicPlayer.stop();
         }
-        
-//        if( _lives>0 && _gameOver){
-//            
-//            println("Ooh!!! You Win!!!");
-//            self.removeAllChildren();
-//            var gameOverScene = GameOverScene(size: self.scene.size, won: true);
-//            var reveal = SKTransition.flipHorizontalWithDuration(0.5);
-//            self.view.presentScene(gameOverScene, transition: reveal);
-//        }
-
         
     }
     
@@ -191,6 +182,7 @@ class GameScene: SKScene {
             var gameOverScene = GameOverScene(size: self.scene.size, won: true);
             var reveal = SKTransition.flipHorizontalWithDuration(0.5);
             self.view.presentScene(gameOverScene, transition: reveal);
+            _backgroundMusicPlayer.stop();
         }
     }
     

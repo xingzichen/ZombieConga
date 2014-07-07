@@ -14,6 +14,7 @@
 		EC06D3AB1953326C0085EEA5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EC06D3A91953326C0085EEA5 /* Main.storyboard */; };
 		EC06D3AD1953326C0085EEA5 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EC06D3AC1953326C0085EEA5 /* Images.xcassets */; };
 		EC06D3B91953326C0085EEA5 /* ZombieCongaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC06D3B81953326C0085EEA5 /* ZombieCongaTests.swift */; };
+		EC3707EB196AE15800D39C51 /* MainMenuScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3707EA196AE15800D39C51 /* MainMenuScene.swift */; };
 		EC386D2C1967AF4D005795F3 /* GameOverScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC386D2B1967AF4D005795F3 /* GameOverScene.swift */; };
 		ECB43D051953481C009B4187 /* background (Charlie Fulton's conflicted copy 2013-10-22).png in Resources */ = {isa = PBXBuildFile; fileRef = ECB43CE81953481C009B4187 /* background (Charlie Fulton's conflicted copy 2013-10-22).png */; };
 		ECB43D061953481C009B4187 /* background.png in Resources */ = {isa = PBXBuildFile; fileRef = ECB43CE91953481C009B4187 /* background.png */; };
@@ -66,6 +67,7 @@
 		EC06D3B21953326C0085EEA5 /* ZombieCongaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ZombieCongaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EC06D3B71953326C0085EEA5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EC06D3B81953326C0085EEA5 /* ZombieCongaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZombieCongaTests.swift; sourceTree = "<group>"; };
+		EC3707EA196AE15800D39C51 /* MainMenuScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainMenuScene.swift; sourceTree = "<group>"; };
 		EC386D2B1967AF4D005795F3 /* GameOverScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameOverScene.swift; sourceTree = "<group>"; };
 		ECB43CE81953481C009B4187 /* background (Charlie Fulton's conflicted copy 2013-10-22).png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "background (Charlie Fulton's conflicted copy 2013-10-22).png"; sourceTree = "<group>"; };
 		ECB43CE91953481C009B4187 /* background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background.png; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 				EC06D3A11953326C0085EEA5 /* AppDelegate.swift */,
 				EC06D3A31953326C0085EEA5 /* GameScene.sks */,
 				EC06D3A51953326C0085EEA5 /* GameScene.swift */,
+				EC3707EA196AE15800D39C51 /* MainMenuScene.swift */,
 				EC386D2B1967AF4D005795F3 /* GameOverScene.swift */,
 				EC06D3A71953326C0085EEA5 /* GameViewController.swift */,
 				EC06D3A91953326C0085EEA5 /* Main.storyboard */,
@@ -358,6 +361,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EC3707EB196AE15800D39C51 /* MainMenuScene.swift in Sources */,
 				EC06D3A61953326C0085EEA5 /* GameScene.swift in Sources */,
 				EC06D3A81953326C0085EEA5 /* GameViewController.swift in Sources */,
 				EC386D2C1967AF4D005795F3 /* GameOverScene.swift in Sources */,
