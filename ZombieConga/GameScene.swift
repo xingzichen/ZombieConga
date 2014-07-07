@@ -29,7 +29,7 @@ class GameScene: SKScene {
     
     var _backgroundMusicPlayer = AVAudioPlayer();
     
-    var _lives = 2;
+    var _lives = 20;
     var _gameOver = false;
     
     override func didMoveToView(view: SKView) {
@@ -89,13 +89,14 @@ class GameScene: SKScene {
             self.view.presentScene(gameOverScene, transition: reveal);
         }
         
-        if( _lives>0 && _gameOver){
-            println("Ooh!!! You Win!!!");
-            self.removeAllChildren();
-            var gameOverScene = GameOverScene(size: self.scene.size, won: true);
-            var reveal = SKTransition.flipHorizontalWithDuration(0.5);
-            self.view.presentScene(gameOverScene, transition: reveal);
-        }
+//        if( _lives>0 && _gameOver){
+//            
+//            println("Ooh!!! You Win!!!");
+//            self.removeAllChildren();
+//            var gameOverScene = GameOverScene(size: self.scene.size, won: true);
+//            var reveal = SKTransition.flipHorizontalWithDuration(0.5);
+//            self.view.presentScene(gameOverScene, transition: reveal);
+//        }
 
         
     }
@@ -184,8 +185,12 @@ class GameScene: SKScene {
         cat.runAction(SKAction.sequence([actionScale, actionGreen]));
         _catTrain.append(cat);
         
-        if( _catTrain.count >= 10){
+        if( _catTrain.count >= 10 && _lives>0){
             _gameOver = true;
+            println("Ooh!!! You Win!!!");
+            var gameOverScene = GameOverScene(size: self.scene.size, won: true);
+            var reveal = SKTransition.flipHorizontalWithDuration(0.5);
+            self.view.presentScene(gameOverScene, transition: reveal);
         }
     }
     
