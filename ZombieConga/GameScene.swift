@@ -28,6 +28,7 @@ class GameScene: SKScene {
     var _zombieTowardLocation = CGPointZero;
     var _zombieAnimation = SKAction();
     var _catTrain:SKSpriteNode[] = [];
+    var _bgLayer:SKNode = SKNode();
     
     var _backgroundMusicPlayer = AVAudioPlayer();
     
@@ -40,17 +41,26 @@ class GameScene: SKScene {
         self.backgroundColor = UIColor.whiteColor();
         self.playBackgroundMusic("bgMusic.mp3");
         
-        let bg = SKSpriteNode(imageNamed:"background");
-//        bg.position = CGPoint(x: view.bounds.size.width/2,y: view.bounds.size.height/2);
-//        bg.anchorPoint = CGPoint(x: 0.5,y: 0.5);
-//        self.addChild(bg);
-        bg.anchorPoint = CGPointZero;
-        bg.position = CGPointZero;
-        bg.name = "bg";
-        self.addChild(bg);
+        _bgLayer = SKNode();
+        self.addChild(_bgLayer);
+        
+        for var i=0;i<2;i++ {
+        
+            let bg = SKSpriteNode(imageNamed:"background");
+    //        bg.position = CGPoint(x: view.bounds.size.width/2,y: view.bounds.size.height/2);
+    //        bg.anchorPoint = CGPoint(x: 0.5,y: 0.5);
+    //        self.addChild(bg);
+            bg.anchorPoint = CGPointZero;
+            bg.position = CGPointMake(bg.size.width*CGFloat(i), 0);
+            bg.name = "bg";
+//            self.addChild(bg);
+            _bgLayer.addChild(bg);
+
+        }
         
         _zombie.position = CGPointMake(100,100);
-        self.addChild(_zombie);
+//        self.addChild(_zombie);
+        _bgLayer.addChild(_zombie);
         
         _zombieTowardLocation = _zombie.position;
         
@@ -73,7 +83,7 @@ class GameScene: SKScene {
         }else{
             _dt = 0;
         }
-        println(_dt);
+//        println(_dt);
         _lastUpdateTime = currentTime;
         
         if( CGPointLength(const: CGPointSubtract(_zombie.position, b: _zombieTowardLocation)) > CGPointLength(const:CGPointMultiplyScalar(_velocity, b: _dt))){
@@ -85,10 +95,12 @@ class GameScene: SKScene {
             self.stopZombieAnimation();
         }
         
+        self.boundsCheckPlayer();
+        
 //        moveSpriteToLocation(_zombie, location:_zombieTowardLocation, self.stopZombieAnimation);
         if( _lives<=0 && !_gameOver){
             _gameOver = true;
-            println("Yeah !!! Game Over!!!");
+//            println("Yeah !!! Game Over!!!");
             
             var gameOverScene = GameOverScene(size: self.scene.size, won: false);
             var reveal = SKTransition.flipHorizontalWithDuration(0.5);
@@ -109,25 +121,33 @@ class GameScene: SKScene {
     
     func spawnEnemy(){
         var enemy = SKSpriteNode(imageNamed:"enemy");
-        enemy.position = CGPointMake(self.size.width + enemy.size.width/2,
-            ScalarRandomRange(enemy.size.height/2, max: self.size.height-enemy.size.height/2));
+        var enemyScenePos = CGPointMake(self.view.bounds.size.width + enemy.size.width/2,
+            ScalarRandomRange(enemy.size.height/2, max: self.view.bounds.size.height-enemy.size.height/2));
+        
+        enemy.position = self.convertPoint(enemyScenePos, toNode:_bgLayer);
+        
         enemy.name = "enemy";
-        self.addChild(enemy);
+//        self.addChild(enemy);
+        _bgLayer.addChild(enemy);
         
         var actionMove = SKAction.moveToX(enemy.size.width/2, duration: 2.0);
         var actionRemove = SKAction.removeFromParent();
+        
         enemy.runAction(SKAction.sequence([actionMove, actionRemove]));
     }
     
     func spawnCats(){
         var cat = SKSpriteNode(imageNamed:"cat");
-        cat.position = CGPointMake(ScalarRandomRange(0, max:self.view.bounds.width),
+        var catScenePos = CGPointMake(ScalarRandomRange(0, max:self.view.bounds.width),
             ScalarRandomRange(0, max:self.view.bounds.height));
+        
+        cat.position = self.convertPoint(catScenePos, toNode:_bgLayer);
         
         cat.xScale = 0;
         cat.yScale = 0;
         cat.name = "cat";
-        self.addChild(cat);
+//        self.addChild(cat);
+        _bgLayer.addChild(cat);
         
         cat.zRotation = -M_PI/16;
         var actionAppear = SKAction.scaleTo(1.0, duration:0.5);
@@ -153,7 +173,7 @@ class GameScene: SKScene {
     // MARK: - Nodes Relations
     
     func checkCollisions(){
-        self.enumerateChildNodesWithName("cat", usingBlock:{ node, stop in
+        _bgLayer.enumerateChildNodesWithName("cat", usingBlock:{ node, stop in
             var cat = node as SKSpriteNode;
             if(CGRectIntersectsRect(cat.frame,self._zombie.frame)){
 //                cat.removeFromParent();
@@ -162,7 +182,7 @@ class GameScene: SKScene {
             }
             });
         
-        self.enumerateChildNodesWithName("enemy", usingBlock:{ node, stop in
+        _bgLayer.enumerateChildNodesWithName("enemy", usingBlock:{ node, stop in
             var enemy = node as SKSpriteNode;
             var smallerFrame = CGRectInset(enemy.frame, 20, 20);
             if(CGRectIntersectsRect(smallerFrame, self._zombie.frame)){
@@ -184,7 +204,7 @@ class GameScene: SKScene {
         
         if( _catTrain.count >= 10 && _lives>0){
             _gameOver = true;
-            println("Ooh!!! You Win!!!");
+//            println("Ooh!!! You Win!!!");
             var gameOverScene = GameOverScene(size: self.scene.size, won: true);
             var reveal = SKTransition.flipHorizontalWithDuration(0.5);
             self.view.presentScene(gameOverScene, transition: reveal);
@@ -293,7 +313,7 @@ class GameScene: SKScene {
         var offset = CGPointSubtract(location, b: _zombie.position);
         var direction = CGPointNormalize(const: offset);
         _velocity = CGPointMultiplyScalar(direction, b: ZOMBIE_MOVE_POINTS_PER_SEC);
-        println("zombie position : \(_zombie.position) , touch point : \(_zombieTowardLocation)");
+//        println("zombie position : \(_zombie.position) , touch point : \(_zombieTowardLocation)");
     }
     
     func rotateSprite(sprite:SKSpriteNode, direction:CGPoint){
@@ -341,35 +361,71 @@ class GameScene: SKScene {
     }
     
     func moveBg(){
-        self.enumerateChildNodesWithName("bg", usingBlock:{ node, stop in
+//        self.enumerateChildNodesWithName("bg", usingBlock:{ node, stop in
+//            var bg:SKSpriteNode = node as SKSpriteNode;
+        var bgVelocity = CGPointMake(-self.BG_POINTS_PER_SEC, 0);
+        var amtToMove = self.CGPointMultiplyScalar(bgVelocity, b: self._dt);
+        self._bgLayer.position = self.CGPointAdd(self._bgLayer.position, b: amtToMove);
+        
+        self._bgLayer.enumerateChildNodesWithName( "bg", usingBlock:{node, stop in
             var bg:SKSpriteNode = node as SKSpriteNode;
-            var bgVelocity = CGPointMake(-self.BG_POINTS_PER_SEC, 0);
-            var amtToMove = self.CGPointMultiplyScalar(bgVelocity, b: self._dt);
-            bg.position = self.CGPointAdd(bg.position, b: amtToMove);
+            var bgScreenPos = self._bgLayer.convertPoint(bg.position, toNode:self);
+            if (bgScreenPos.x <= -bg.size.width){
+                bg.position = CGPointMake(bg.position.x + bg.size.width*2, bg.position.y);
+            }
         });
+//        });
     }
     
+    func boundsCheckPlayer(){
+        var newPosition = _zombie.position;
+        var newVelocity = _velocity;
+        
+        var bottomLeft = _bgLayer.convertPoint(CGPointZero,fromNode:self);
+        var topRight = _bgLayer.convertPoint(CGPointMake(self.view.bounds.size.width/2,self.view.bounds.size.height/2), fromNode:self);
+        
+        if (newPosition.x <= bottomLeft.x) {
+            newPosition.x = bottomLeft.x;
+            newVelocity.x = -newVelocity.x;
+        }
+        if (newPosition.x >= topRight.x) {
+            newPosition.x = topRight.x;
+            newVelocity.x = -newVelocity.x;
+        }
+        if (newPosition.y <= bottomLeft.y) {
+            newPosition.y = bottomLeft.y;
+            newVelocity.y = -newVelocity.y;
+        }
+        if (newPosition.y >= topRight.y) {
+            newPosition.y = topRight.y;
+            newVelocity.y = -newVelocity.y;
+        }
+        
+        // 4
+        _zombie.position = newPosition;
+        _velocity = newVelocity;
+    }
     
     // MARK: - Touch Actions
     
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
         /* Called when a touch begins */
         let touch = touches.anyObject() as UITouch;
-        var touchLocation = touch.locationInNode(self);
+        var touchLocation = touch.locationInNode(_bgLayer);
         self.moveZombieToward(touchLocation);
     }
 
     
     override func touchesEnded(touches: NSSet!, withEvent event: UIEvent!) {
         let touch = touches.anyObject() as UITouch;
-        var touchLocation = touch.locationInNode(self);
+        var touchLocation = touch.locationInNode(_bgLayer);
         self.moveZombieToward(touchLocation);
 
     }
     
     override func touchesMoved(touches: NSSet!, withEvent event: UIEvent!) {
         let touch = touches.anyObject() as UITouch;
-        var touchLocation = touch.locationInNode(self);
+        var touchLocation = touch.locationInNode(_bgLayer);
         self.moveZombieToward(touchLocation);
 
     }
