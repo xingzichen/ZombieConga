@@ -13,10 +13,10 @@ import AVFoundation
 class GameScene: SKScene {
     
     let ZOMBIE_MOVE_POINTS_PER_SEC:CGFloat = 120.0;
-    let ZOMBIE_ROTATE_RADIANS_PER_SEC = 2*M_PI;
+    let ZOMBIE_ROTATE_RADIANS_PER_SEC:CGFloat = CGFloat(2*M_PI);
     
     let CAT_MOVE_POINTS_PER_SEC:CGFloat = 120.0;
-    let CAT_ROTATE_RADIANS_PER_SEC = 2*M_PI;
+    let CAT_ROTATE_RADIANS_PER_SEC = CGFloat(2*M_PI);
     
     let BG_POINTS_PER_SEC:CGFloat = 50;
 
@@ -27,7 +27,7 @@ class GameScene: SKScene {
     var _zombie:SKSpriteNode = SKSpriteNode(imageNamed:"zombie1");
     var _zombieTowardLocation = CGPointZero;
     var _zombieAnimation = SKAction();
-    var _catTrain:SKSpriteNode[] = [];
+    var _catTrain = [SKSpriteNode]();
     var _bgLayer:SKNode = SKNode();
     
     var _backgroundMusicPlayer = AVAudioPlayer();
@@ -86,9 +86,9 @@ class GameScene: SKScene {
 //        println(_dt);
         _lastUpdateTime = currentTime;
         
-        if( CGPointLength(const: CGPointSubtract(_zombie.position, b: _zombieTowardLocation)) > CGPointLength(const:CGPointMultiplyScalar(_velocity, b: _dt))){
+        if( CGPointLength(const: CGPointSubtract(_zombie.position, b: _zombieTowardLocation)) > CGPointLength(const:CGPointMultiplyScalar(_velocity, b: CGFloat(_dt)))){
             self.moveSprite(_zombie, velocity:_velocity);
-            self.rotateSprite(_zombie, direction:_velocity, rotateRadiansPerSec: ZOMBIE_ROTATE_RADIANS_PER_SEC);
+            self.rotateSprite(_zombie, direction:_velocity, rotateRadiansPerSec:ZOMBIE_ROTATE_RADIANS_PER_SEC);
         }
         else {
             _zombie.position = _zombieTowardLocation;
@@ -106,13 +106,13 @@ class GameScene: SKScene {
             var reveal = SKTransition.flipHorizontalWithDuration(0.5);
             self.view.presentScene(gameOverScene, transition: reveal);
             _backgroundMusicPlayer.stop();
+            self.checkCollisions();
+            self.moveTrain();
         }
         
     }
     
     override func didEvaluateActions() {
-        self.checkCollisions();
-        self.moveTrain();
         self.moveBg();
         
     }
@@ -149,11 +149,11 @@ class GameScene: SKScene {
 //        self.addChild(cat);
         _bgLayer.addChild(cat);
         
-        cat.zRotation = -M_PI/16;
+        cat.zRotation = CGFloat(-M_PI/16);
         var actionAppear = SKAction.scaleTo(1.0, duration:0.5);
         var actionWait = SKAction.waitForDuration(10);
         
-        var actionLeftWiggle = SKAction.rotateByAngle(M_PI/8, duration: 0.5);
+        var actionLeftWiggle = SKAction.rotateByAngle(CGFloat(M_PI/8), duration: 0.5);
         var actionRightWiggle = actionLeftWiggle.reversedAction();
         var actionFullWiggle = SKAction.sequence([actionLeftWiggle, actionRightWiggle]);
         
@@ -226,7 +226,7 @@ class GameScene: SKScene {
         randomSpot.y += self.ScalarRandomRange(-100, max: 100);
         node.name = "";
         
-        var actionRotate = SKAction.rotateByAngle(M_PI * 4, duration:1.0);
+        var actionRotate = SKAction.rotateByAngle(CGFloat(M_PI * 4), duration:1.0);
         var actionMoveRandom = SKAction.moveTo(randomSpot, duration: 1.0);
         var actionDisappear = SKAction.scaleTo(0, duration: 1.0);
         var action = SKAction.sequence([SKAction.group([actionRotate,actionMoveRandom,actionDisappear]),SKAction.removeFromParent()]);
@@ -289,7 +289,7 @@ class GameScene: SKScene {
     // MARK: - move
     
     func moveSprite(sprite:SKSpriteNode, velocity:CGPoint){
-        var amountToMove:CGPoint = CGPointMultiplyScalar(velocity, b: _dt);
+        var amountToMove:CGPoint = CGPointMultiplyScalar(velocity, b: CGFloat(_dt));
         sprite.position = CGPointAdd(sprite.position, b:amountToMove);
     }
     
@@ -298,7 +298,7 @@ class GameScene: SKScene {
         var direction = CGPointNormalize(const: offset);
         var velocity = CGPointMultiplyScalar(direction, b: CAT_MOVE_POINTS_PER_SEC);
         
-        if( CGPointLength(const: CGPointSubtract(sprite.position, b: location)) >= CGPointLength(const:CGPointMultiplyScalar(velocity, b: _dt))){
+        if( CGPointLength(const: CGPointSubtract(sprite.position, b: location)) >= CGPointLength(const:CGPointMultiplyScalar(velocity, b: CGFloat(_dt)))){
             self.moveSprite(sprite, velocity:velocity);
             self.rotateSprite(sprite, direction:velocity, rotateRadiansPerSec: CAT_ROTATE_RADIANS_PER_SEC);
         }
@@ -322,7 +322,7 @@ class GameScene: SKScene {
     
     func rotateSprite(sprite:SKSpriteNode, direction:CGPoint, rotateRadiansPerSec:CGFloat){
         var rotation = ScalarShortestAngleBetween(const: CGPointToAngle(const: direction), const: sprite.zRotation);
-        var amtToRotate = rotateRadiansPerSec*_dt;
+        var amtToRotate = rotateRadiansPerSec*CGFloat(_dt);
         if (rotation>0) {
             if(rotation - amtToRotate < 0){
                 sprite.zRotation = CGPointToAngle(const: direction);
@@ -364,7 +364,7 @@ class GameScene: SKScene {
 //        self.enumerateChildNodesWithName("bg", usingBlock:{ node, stop in
 //            var bg:SKSpriteNode = node as SKSpriteNode;
         var bgVelocity = CGPointMake(-self.BG_POINTS_PER_SEC, 0);
-        var amtToMove = self.CGPointMultiplyScalar(bgVelocity, b: self._dt);
+        var amtToMove = self.CGPointMultiplyScalar(bgVelocity, b: CGFloat(self._dt));
         self._bgLayer.position = self.CGPointAdd(self._bgLayer.position, b: amtToMove);
         
         self._bgLayer.enumerateChildNodesWithName( "bg", usingBlock:{node, stop in
@@ -467,11 +467,11 @@ class GameScene: SKScene {
     func ScalarShortestAngleBetween(const a:CGFloat, const b:CGFloat)->CGFloat{
         var difference = b - a;
         var angle = CGFloat(fmodf(CFloat(difference), CFloat(M_PI*2)));
-        if angle >= M_PI {
-            angle -= M_PI*2;
+        if angle >= CGFloat(M_PI) {
+            angle -= CGFloat(M_PI*2);
         }
-        else if angle <= -M_PI {
-            angle += M_PI*2;
+        else if angle <= CGFloat(-M_PI) {
+            angle += CGFloat(M_PI*2);
         }
         return angle;
     }
